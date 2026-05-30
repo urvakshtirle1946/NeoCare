@@ -3,22 +3,29 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import "dotenv/config";
 
-const {
-  ASTRA_DB_NAMESPACE,
-  ASTRA_DB_COLLECTION,
-  ASTRA_DB_API_ENDPOINT,
-  ASTRA_DB_APPLICATION_TOKEN,
-  GENAI_API_KEY,
-} = process.env;
-
-const ai = new GoogleGenAI({ apiKey: GENAI_API_KEY! });
-
-const client = new DataAPIClient(ASTRA_DB_APPLICATION_TOKEN!);
-const db = client.db(ASTRA_DB_API_ENDPOINT!, {
-  keyspace: ASTRA_DB_NAMESPACE!,
-});
-
 export async function POST(req: Request) {
+  const {
+    ASTRA_DB_NAMESPACE,
+    ASTRA_DB_COLLECTION,
+    ASTRA_DB_API_ENDPOINT,
+    ASTRA_DB_APPLICATION_TOKEN,
+    GENAI_API_KEY,
+  } = process.env;
+
+  if (!ASTRA_DB_APPLICATION_TOKEN || !ASTRA_DB_API_ENDPOINT || !GENAI_API_KEY) {
+    console.error("Missing environment variables in /api/chat");
+    return NextResponse.json(
+      { role: "assistant", content: "Missing required environment variables for chat service." },
+      { status: 500 }
+    );
+  }
+
+  const ai = new GoogleGenAI({ apiKey: GENAI_API_KEY });
+  const client = new DataAPIClient(ASTRA_DB_APPLICATION_TOKEN);
+  const db = client.db(ASTRA_DB_API_ENDPOINT, {
+    keyspace: ASTRA_DB_NAMESPACE,
+  });
+
   try {
     const { message } = await req.json();
 
