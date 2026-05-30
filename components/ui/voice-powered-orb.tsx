@@ -30,6 +30,7 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
   const dataArrayRef = useRef<Uint8Array | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  const microphoneActiveRef = useRef<boolean>(false);
 
   const vert = /* glsl */ `
     precision highp float;
@@ -213,6 +214,10 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
   // Stop microphone and cleanup
   const stopMicrophone = () => {
     try {
+      // if nothing active, don't log cleanup multiple times
+      if (!microphoneActiveRef.current && !mediaStreamRef.current && !audioContextRef.current) {
+        return;
+      }
       // Stop all tracks in the media stream
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => {
@@ -239,6 +244,7 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
       }
 
       dataArrayRef.current = null;
+      microphoneActiveRef.current = false;
       console.log('Microphone stopped and cleaned up');
     } catch (error) {
       console.warn('Error stopping microphone:', error);
@@ -281,6 +287,9 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
 
       microphoneRef.current.connect(analyserRef.current);
       dataArrayRef.current = new Uint8Array(analyserRef.current.frequencyBinCount);
+
+      // mark microphone as active
+      microphoneActiveRef.current = true;
 
       console.log('Microphone initialized successfully');
       return true;

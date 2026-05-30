@@ -7,9 +7,11 @@ const { GROQ_API_KEY } = process.env;
 
 export async function POST(req: Request) {
   if (!GROQ_API_KEY) {
+    // Missing API key is an authentication problem — respond 401 (Unauthorized)
+    console.error("Missing GROQ_API_KEY environment variable");
     return NextResponse.json(
       { error: "Missing GROQ_API_KEY" },
-      { status: 500 }
+      { status: 401 }
     );
   }
 

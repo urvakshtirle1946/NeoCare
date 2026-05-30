@@ -136,8 +136,8 @@ WHAT TO DO AT THE END
 3. Do NOT ask the user medical test values unless they mention them themselves.
 4. Always end by encouraging them kindly and giving at least one positive, hopeful line.`;
 
-  const ELEVEN_VOICE_ID = "EaBs7G1VibMrNAuz2Na7";
-  const ELEVEN_MODEL_ID = "eleven_multilingual_v2";
+  const ELEVEN_VOICE_ID = process.env.NEXT_PUBLIC_ELEVEN_VOICE_ID ?? "EaBs7G1VibMrNAuz2Na7";
+  const ELEVEN_MODEL_ID = process.env.NEXT_PUBLIC_ELEVEN_MODEL_ID ?? "eleven_multilingual_v2";
 
   // Load speech synthesis
   useEffect(() => {
@@ -187,25 +187,12 @@ WHAT TO DO AT THE END
       isSpeakingRef.current = true;
 
       try {
-        const response = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE_ID}`,
-          {
-            method: "POST",
-            headers: {
-              "xi-api-key": "9972fcdf952990384fd7e4c3b2662ec478bd8bb140039d2bf235e8a2f87f164b",
-              "Content-Type": "application/json",
-              Accept: "audio/mpeg",
-            },
-            body: JSON.stringify({
-              text,
-              model_id: ELEVEN_MODEL_ID,
-              voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.8,
-              },
-            }),
-          }
-        );
+        // Call server-side proxy to avoid exposing XI API key in client
+        const response = await fetch("/api/eleven-tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, voiceId: ELEVEN_VOICE_ID, modelId: ELEVEN_MODEL_ID }),
+        });
 
         if (!response.ok) {
           console.error("ElevenLabs TTS error", response.status, await response.text());

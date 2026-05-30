@@ -5,12 +5,16 @@ import { useEffect } from "react";
 interface VoiceWidgetProps {
   publicKey: string;
   assistantId: string;
+  enabled?: boolean; // Controls whether the widget script will be injected
 }
 
-export default function VoiceWidget({ publicKey, assistantId }: VoiceWidgetProps) {
+export default function VoiceWidget({ publicKey, assistantId, enabled = true }: VoiceWidgetProps) {
   useEffect(() => {
     // Avoid adding script multiple times
     if (typeof window === "undefined") return;
+
+    // Only load widget script when explicitly enabled to avoid injected scripts/polylfills
+    if (!enabled) return;
 
     const existing = document.getElementById("vapi-widget-script");
     if (!existing) {

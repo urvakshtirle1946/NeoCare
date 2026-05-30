@@ -23,8 +23,8 @@ export default function Interview() {
         })
       );
 
-      // Navigate to test page (Next.js client navigation)
-      router.replace('/test');
+      // Navigate to dashboard page (Next.js client navigation)
+      router.push('/dashboard');
     }
   };
 
