@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Avatar } from "../ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 
 export type UserProfile = {
@@ -20,7 +20,10 @@ export default function ProfileCard({ user }: Props) {
     <div className="rounded-xl border border-white/10 bg-slate-900/70 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-slate-900">
       <div className="flex items-center gap-4">
         <div className="relative">
-          <Avatar src={user.avatarUrl} alt={user.name} />
+          <Avatar>
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
+            <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+          </Avatar>
           <span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border border-slate-900 bg-emerald-400" />
         </div>
         <div>
